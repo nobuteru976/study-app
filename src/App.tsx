@@ -65,7 +65,7 @@ function App() {
         <div>
           <h1>学習記録アプリ</h1>
           <div>
-            <label>学習内容</label>
+            <label>学習内容!</label>
             <input
               type="text"
               value={learningContent}

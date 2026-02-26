@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
-import { supabase } from "./supabase";
-
-type Record = {
-  id: string;
-  content: string;
-  time: number;
-};
+import { getLearningRecords, saveLearningRecord, supabase } from "./supabase";
+import type { Record } from "./Record";
 
 function App() {
   const [learningContent, setLearningContent] = useState("");
@@ -15,17 +10,12 @@ function App() {
 
   useEffect(() => {
     const fetchLearningRecords = async () => {
-      const { data, error } = await supabase.from("records").select("*");
+      const data = await getLearningRecords();
 
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      const records = data.map((record) => ({
+      const records = data.map((record: Record) => ({
         id: record.id,
         content: record.content,
-        time: record.time,
+        time: record.time as number,
       }));
 
       setLearningRecords(records);
@@ -36,20 +26,12 @@ function App() {
   }, []);
 
   const handleSaveLearningRecord = async () => {
-    const { data, error } = await supabase
-      .from("records")
-      .insert({ content: learningContent, time: learningTime })
-      .select();
-
-    if (error) {
-      console.error(error);
-      return;
-    }
+    const data = await saveLearningRecord(learningContent, learningTime);
 
     const newRecord = {
-      id: data[0].id,
-      content: data[0].content,
-      time: data[0].time,
+      id: data.id,
+      content: data.content,
+      time: data.time,
     };
 
     setLearningRecords([...learningRecords, newRecord]);
@@ -65,27 +47,31 @@ function App() {
         <div>
           <h1>学習記録アプリ</h1>
           <div>
-            <label>学習内容!</label>
+            <label htmlFor="learning-content">学習内容</label>
             <input
+              id="learning-content"
               type="text"
               value={learningContent}
               onChange={(e) => setLearningContent(e.target.value)}
             />
           </div>
           <div>
-            <label>学習時間</label>
+            <label htmlFor="learning-time">学習時間</label>
             <input
+              id="learning-time"
               type="number"
               value={learningTime}
               onChange={(e) => setLearningTime(Number(e.target.value))}
             />
           </div>
           <button onClick={handleSaveLearningRecord}>学習記録を保存</button>
-          {learningRecords.map((record) => (
-            <div key={record.id}>
-              {record.content} - {record.time}時間
-            </div>
-          ))}
+          <ul>
+            {learningRecords.map((record) => (
+              <li key={record.id}>
+                {record.content} - {record.time}時間
+              </li>
+            ))}
+          </ul>
           <div>
             合計学習時間:{" "}
             {learningRecords.reduce((acc, record) => acc + record.time, 0)}時間

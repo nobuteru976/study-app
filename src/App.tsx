@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getLearningRecords, saveLearningRecord, supabase } from "./supabase";
+import { getLearningRecords, saveLearningRecord } from "./supabase";
 import type { Record } from "./Record";
 
 function App() {
